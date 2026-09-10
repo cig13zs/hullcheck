@@ -1,0 +1,5 @@
+* text=auto
+*.py text eol=lf
+hullcheck text eol=lf
+*.cmd text eol=crlf
+*.yml text eol=lf

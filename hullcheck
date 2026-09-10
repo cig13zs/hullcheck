@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+# hullcheck wrapper for bash/zsh. Finds Blender, passes every argument through.
+# Override with: HULLCHECK_BLENDER=/path/to/blender hullcheck model.blend
+
+# Resolve this script's directory as a NATIVE path (blender.exe cannot read
+# MSYS-style /c/... paths when path translation is disabled).
+DIR="$(cd "$(dirname "$0")" && pwd)"
+if command -v cygpath >/dev/null 2>&1; then
+  DIR="$(cygpath -w "$DIR")"
+fi
+SCRIPT="$DIR\\hullcheck.py"
+
+if [ -n "$HULLCHECK_BLENDER" ]; then
+  BLENDER="$HULLCHECK_BLENDER"
+else
+  BLENDER=""
+  for candidate in "/c/Program Files/Blender Foundation"/Blender*/blender.exe \
+                   /Applications/Blender.app/Contents/MacOS/Blender \
+                   "$(command -v blender 2>/dev/null)"; do
+    if [ -x "$candidate" ]; then BLENDER="$candidate"; break; fi
+  done
+fi
+
+if [ -z "$BLENDER" ]; then
+  echo "hullcheck: Blender not found. Install Blender or set HULLCHECK_BLENDER."
+  exit 2
+fi
+
+exec "$BLENDER" --background --factory-startup --python "$SCRIPT" -- "$@"

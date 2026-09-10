@@ -1,0 +1,24 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  fixtures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Blender
+        run: |
+          curl -fsSL "https://download.blender.org/release/Blender4.4/blender-4.4.3-linux-x64.tar.xz" -o blender.tar.xz
+          tar -xf blender.tar.xz
+          echo "HULLCHECK_BLENDER=$(pwd)/blender-4.4.3-linux-x64/blender" >> "$GITHUB_ENV"
+
+      - name: Blender version
+        run: "$HULLCHECK_BLENDER --version | head -1"
+
+      - name: Fixture tests
+        run: python3 tests/run_tests.py
